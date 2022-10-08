@@ -3,6 +3,12 @@ A Text - To - Handwriting converter written in python
 
 Unlike the other online tools that convert text to handwriting, this converter uses actual images of the handwriting to create the complete page rather than using fonts made from handwriting. The advantage of this is that, the handwriting looks more realistic and believeable because it is real.
 
+# Directory Structure
+**Alphabet (Folder)** : Contains all the image sets of characters and symbols  
+**OP (Folder)** : This is where the output of the program is written  
+**text.txt (File)** : This is where the input text for the program is written.
+
+
 # Usage
 ## Capturing the Handwriting
 First, we take a photo of our handwriting, then we crop all the individuals using the cropper tool which makes it a lot easier.
