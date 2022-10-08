@@ -22,7 +22,7 @@ def main():
             config.current_word_img = cv2.imread("Alphabet/Set 1/32.png")        # initialise a blank word starting with a space
 
             # loop for each character in a word
-            for character in word:
+            for n,character in enumerate(word):
                 write_character(character)                          # write the character 
 
             write_word()

@@ -4,7 +4,8 @@
 # Global variables
 page_width = 1700       # the page width and page height are set to the A4 sheet's ratio
 page_height = 2404
-
+pipe_key_buffer = ""
+record_key_flag = False
 current_page_number = 1
 
 # Image variables set to None ( Initially )
