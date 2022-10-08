@@ -103,7 +103,7 @@ def write_word() -> None:
 # Description : Concatenates the current character image to the current word image
 # Argument 1: The character to be concatenated
 def write_character(character:str) -> None:
-    '''write_character() -> None\n\nConcatenates the current character image to the current word image'''
+    '''write_character(character) -> None\n\nConcatenates the current character image to the current word image'''
     # if the current character is not available then skip it
     if os.path.exists("Alphabet/Set "+str(random.randint(1,3))+"/"+str(ord(character))+".png"):
         # get the individual image of the current character
