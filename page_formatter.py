@@ -15,6 +15,8 @@
 #   4. write_line()                                     #
 #   5. write_word()                                     #
 #   6. write_character()                                #
+#   7. initialise_line()                                #
+#   8. initialise_word()                                #
 #                                                       #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -23,11 +25,11 @@ import os
 import config
 import random
 
-# Function Name: new_line
+# Function Name: complete_line
 # Description : Concatenates white pixels to the current
 #   line image so that it's length is equal to the page width.
-def new_line() -> None:
-    '''new_line()\n\nConcatenates white pixels to the current line image so that its length is equal to the page width.'''
+def complete_line() -> None:
+    '''complete_line()\n\nConcatenates white pixels to the current line image so that its length is equal to the page width.'''
     
     # get the length of the current line image
     current_line_img_length = config.current_line_img.shape[1]
@@ -49,21 +51,11 @@ def initialise_page() -> None:
         config.current_page_img = cv2.hconcat([config.current_page_img,cv2.imread("Alphabet/Set 1/wh.png")])
 
 
-# Function Name: write_page
-# Description : Saves the current page in the output folder and initialises a new blank page
-def write_page() -> None:
-    '''write_page() -> None\n\nSaves the current page in the output folder and initialises a new blank page'''
-    cv2.imwrite("OP/" +str(config.current_page_number) +".png",config.current_page_img)   # save the current page image
-    print("Completed Writing Page",config.current_page_number)
-    initialise_page()                                                                     # initialise a new blank page 
-    config.current_page_number += 1                                                       # increment the page number
-
-
 # Function Name: write_line
 # Description : Concatenates the current line image to the current page image vertically
 def write_line() -> None:
     '''write_line() -> None\n\nConcatenates the current line image to the current page image vertically'''
-    new_line()    # add the extra white pixels to the current line 
+    complete_line()    # add the extra white pixels to the current line 
 
     # if the page is full, move to a new page
     if(config.current_page_img.shape[0] >= config.page_height):
@@ -73,6 +65,26 @@ def write_line() -> None:
     config.current_page_img = cv2.vconcat([config.current_page_img,config.current_line_img])
 
 
+# Function Name: write_page
+# Description : Saves the current page in the output folder and initialises a new blank page
+def write_page() -> None:
+    '''write_page() -> None\n\nSaves the current page in the output folder and initialises a new blank page'''
+
+    # if the page is not complete, then we add blank lines to fill it up
+    if(config.current_page_img.shape[0] < config.page_height):  
+        initialise_line()   # create a blank line
+        complete_line()     # complete the blank line with white pixels
+
+        # repeatedly write this blank line to the page until it is full
+        while config.current_page_img.shape[0] < config.page_height:
+            write_line()
+
+    cv2.imwrite("OP/" +str(config.current_page_number) +".png",config.current_page_img)   # save the current page image
+    print("Completed Writing Page",config.current_page_number)                            # print the prompt
+    initialise_page()                                                                     # initialise a new blank page 
+    config.current_page_number += 1                                                       # increment the page number
+
+
 # Function Name : write_word
 # Description : Concatenates the current word image to the current line image horizontally
 def write_word() -> None:
@@ -80,7 +92,7 @@ def write_word() -> None:
     # if the current line length is exceeding the page lenght after concatenating
     # the current character then move to the next line before concatenating it
     if(config.current_line_img.shape[1] + config.current_word_img.shape[1] > config.page_width):
-        write_line()                                            # write the current line on to the page
+        write_line()                                                         # write the current line on to the page
         config.current_line_img = cv2.imread("Alphabet/Set 1/wh.png")        # initialise a new blank line
 
     # concatenate the current word to the line
@@ -99,3 +111,17 @@ def write_character(character:str) -> None:
         
         # concatenate the current chatacter to the current line
         config.current_word_img = cv2.hconcat([config.current_word_img, config.current_character_img])
+
+
+# Function Name : initialise_line
+# Description : Creates a line starting with white pixels
+def initialise_line() -> None:
+    '''initialise_line() -> None\n\nCreates a line starting with white pixels'''
+    config.current_line_img = cv2.imread("Alphabet/Set 1/wh.png")
+
+
+# Function Name : initialise_line
+# Description : Creates a line starting with white pixels
+def initialise_word() -> None:
+    '''initialise_line() -> None\n\nCreates a line starting with white pixels'''
+    config.current_word_img = cv2.imread("Alphabet/Set 1/32.png")
