@@ -1,7 +1,6 @@
 import config
 from page_formatter import  initialise_line, initialise_word, write_character, write_line, write_page, write_word
 import re
-import cv2
 import numpy as np
 
 # Function Name: new_line()
@@ -78,7 +77,7 @@ def color() -> None:
 
     # extract color and text from the key
     extracted_text = config.pipe_key_buffer.split(",")[-1][:-1]
-    extracted_color = [int(x) for x in config.pipe_key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")]
+    extracted_color = [int(x) for x in config.pipe_key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
 
     # write the current word to the line before colouring the next few characters
     write_word()
@@ -96,7 +95,12 @@ def color() -> None:
     config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = extracted_color
 
 
-# Function Name :
+# Function Name : font_size()
+# Description : Changes the font size of the text
+#   present in the key to the given scale
+def font_size() -> None:
+    # This function is yet to be completed
+    pass
 
 
 # Function Name: analyse_key()
