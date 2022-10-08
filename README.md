@@ -31,6 +31,8 @@ D -> Move the background right
 ← -> Move the border box left  
 ↓ -> Move the border box down  
 
+ENTER -> Crop the selected character
+
 ## Getting the output
 Once the cropping of Alphabet and symbols is done, all we have to do is copy some text into the 'text.txt' file and run main.py
 
