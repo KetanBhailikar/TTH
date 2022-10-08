@@ -44,7 +44,12 @@ def main():
                     config.current_key_pipes_encountered = 0          # reset the pipe counter
                     config.pipe_key_buffer = ""         # reset the pipe key buffer
 
-            write_word()
+            # if the key has multiple words in its text, then don't write those words to the line, instead,
+            # add a space between the words in the pipe key buffer
+            if config.current_key_pipes_encountered > 0 and config.current_key_pipes_encountered < 3:
+                    config.pipe_key_buffer += " "
+            else:
+                write_word()
         
         write_line()                                                # write the current line to the page
 
