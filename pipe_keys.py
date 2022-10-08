@@ -1,7 +1,8 @@
 import config
-from page_formatter import  initialise_line, initialise_word, write_line, write_page, write_word
+from page_formatter import  initialise_line, initialise_word, write_character, write_line, write_page, write_word
 import re
 import cv2
+import numpy as np
 
 # Function Name: new_line()
 # Description : Writes the current line to the page
@@ -69,6 +70,35 @@ def tab_space() -> None:
         write_word()   
 
 
+# Function Name : color()
+# Description : Changes the color of the text present
+#   in the key to the given color.
+def color() -> None:
+    '''color() -> None\n\nChanges the color of the text present in the key to the given color'''
+
+    # extract color and text from the key
+    extracted_text = config.pipe_key_buffer.split(",")[-1][:-1]
+    extracted_color = [int(x) for x in config.pipe_key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")]
+
+    # write the current word to the line before colouring the next few characters
+    write_word()
+    # create a new blank word
+    initialise_word()
+
+    # concatenate all the extracted text to the blank word
+    for chars in extracted_text:
+        write_character(chars)
+    
+    # remove the default extra space in front of the word
+    config.current_word_img = config.current_word_img[:,27:]
+
+    # color the word
+    config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = extracted_color
+
+
+# Function Name :
+
+
 # Function Name: analyse_key()
 # Description : This functions checks the pipe key buffer
 #    and performs the operation based on the pipe key 
@@ -95,3 +125,7 @@ def analyse_key() -> None:
     # if |ts:n| is encountered
     if re.search("\| *ts *: *[0-9]*\|", config.pipe_key_buffer):
         tab_space()
+    
+    # if |color: [R,G,B], TEXT| is encountered
+    if re.search("\| *color *: *\[ *.*,.*,.*\] *,.*\|",config.pipe_key_buffer):
+        color()
