@@ -99,9 +99,9 @@ def color() -> None:
 # Description : Changes the font size of the text
 #   present in the key to the given scale
 def font_size() -> None:
-    # This function is yet to be completed
+    '''font_size() -> None\n\nChanges the font size of the text present in the key to the given scale'''
+    # this function is yet to be completed
     pass
-
 
 # Function Name: analyse_key()
 # Description : This functions checks the pipe key buffer
