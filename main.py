@@ -21,8 +21,9 @@ def main():
         
         # for all the words in a line
         for word in line.split():
-            # initialise a blank word starting with a space
-            initialise_word()
+            # initialise a blank word starting with a space if the key is not being read
+            if config.current_key_pipes_encountered == 0:
+                initialise_word()
 
             # loop for each character in a word
             for n,character in enumerate(word):

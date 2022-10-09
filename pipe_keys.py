@@ -1,5 +1,6 @@
+import cv2
 import config
-from page_formatter import  initialise_line, initialise_word, write_character, write_line, write_page, write_word
+from page_formatter import  complete_line, initialise_line, initialise_word, write_character, write_line, write_page, write_word
 import re
 import numpy as np
 
@@ -98,10 +99,41 @@ def color() -> None:
 # Function Name : font_size()
 # Description : Changes the font size of the text
 #   present in the key to the given scale
+# !! Important Note: The font_size funtion changes the size of a single line and crops 
 def font_size() -> None:
     '''font_size() -> None\n\nChanges the font size of the text present in the key to the given scale'''
-    # this function is yet to be completed
-    pass
+    # get the extracted text from the key
+    extracted_text = config.pipe_key_buffer.split(",")[-1][:-1]
+    extracted_scale = float(config.pipe_key_buffer.split(",")[0].split(":")[-1])
+
+    # write the existing word to the line and line to the page and start from a new line as the size is different
+    new_line()
+
+    # write the extracted text to th line
+    for chars in extracted_text:
+        write_character(chars)
+
+    # write the word to the new line
+    write_word()
+    initialise_word()
+
+    config.scale = extracted_scale
+    # complete the line
+    complete_line()
+
+    # change the scale of this line
+    config.current_line_img = cv2.resize(config.current_line_img,(int(config.current_line_img.shape[1]*extracted_scale),int(config.current_line_img.shape[0]*extracted_scale)) , interpolation= cv2.INTER_LINEAR)[:,int(27*extracted_scale-27):config.page_width+int(27*extracted_scale-27)]
+    
+    # write this scaled line to the page
+    write_line()
+    config.scale = 1
+    initialise_line()
+    
+
+# Function Name : font
+# Description : This function is basically a combination of
+#   color and fontsize functions
+
 
 # Function Name: analyse_key()
 # Description : This functions checks the pipe key buffer
@@ -133,3 +165,7 @@ def analyse_key() -> None:
     # if |color: [R,G,B], TEXT| is encountered
     if re.search("\| *color *: *\[ *.*,.*,.*\] *,.*\|",config.pipe_key_buffer):
         color()
+    
+    # if |fontsize: x, TEXT| is encountered
+    if re.search("\| *fontsize *: *.* *,.*\|",config.pipe_key_buffer):
+        font_size()
