@@ -4,7 +4,6 @@ from page_formatter import  complete_line, initialise_line, initialise_word, wri
 import re
 import numpy as np
 
-#test comment
 
 # Function Name: new_line()
 # Description : Writes the current line to the page
