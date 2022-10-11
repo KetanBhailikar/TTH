@@ -4,7 +4,7 @@
 # Global variables
 page_width = 1700                   # width of the page in pixels
 page_height = 2404                  # height of the page in pixels
-pipe_key_buffer = ""                # stores the characters after a pipe is encountered
+key_buffer = ""                # stores the characters after a pipe is encountered
 current_key_symbols_encountered = 0   # holds the number of pipes encountered in the current key
 current_page_number = 1             # holds the current page number
 scale = 1                           # the functions import an image and scale it according to this value
