@@ -1,4 +1,3 @@
-import cv2
 import config
 from page_formatter import  complete_line, initialise_line, initialise_word, write_character, write_line, write_page, write_word
 import re
