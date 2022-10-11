@@ -83,8 +83,9 @@ def color(key_buffer) -> None:
     local_key_buffer = ""
 
     # extract color and text from the key
-    extracted_text = key_buffer.split(",")[-1][:-1]
+    extracted_text = key_buffer[key_buffer.find("]"):][key_buffer[key_buffer.find("]"):].find(",")+1:][:-1]
 
+    # print(key_buffer)
     extracted_color = [int(x) for x in key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
 
     # write the current word to the line before colouring the next few characters
@@ -142,7 +143,7 @@ def font_size(key_buffer) -> None:
     local_key_buffer = ""
 
     # get the extracted text from the key
-    extracted_text = key_buffer.split(",")[-1][:-1]
+    extracted_text = key_buffer[key_buffer.find(",")+1:][:-1]
     extracted_scale = float(key_buffer.split(",")[0].split(":")[-1])
 
     # write the existing word to the line and line to the page and start from a new line as the size is different
@@ -202,29 +203,29 @@ def analyse_key(key_buffer) -> None:
     '''analyse_key() -> None\n\nThis functions checks the pipe key buffer and performs the operation based on the pipe key encountered.'''
 
     # if nl key is encountered, then move to the new line
-    if re.search(config.key_start_symbol+" *nl *"+config.key_end_symbol,key_buffer):
+    if re.search("^"+config.key_start_symbol+" *nl *"+config.key_end_symbol,key_buffer):
         new_line()
     
     # if vs:n key is encountered, then skip n lines
-    if re.search(config.key_start_symbol+" *vs *: *[0-9]*"+config.key_end_symbol,key_buffer):
+    if re.search("^"+config.key_start_symbol+" *vs *: *[0-9]*"+config.key_end_symbol,key_buffer):
         vertical_space()
 
     # if |np| is encountered, then start with a new page
-    if re.search(config.key_start_symbol+" *np *"+config.key_end_symbol,key_buffer):
+    if re.search("^"+config.key_start_symbol+" *np *"+config.key_end_symbol,key_buffer):
         new_page()
     
     # if |hs:n| is encountered
-    if re.search(config.key_start_symbol+" *hs *: *[0-9]*"+config.key_end_symbol, key_buffer):
+    if re.search("^"+config.key_start_symbol+" *hs *: *[0-9]*"+config.key_end_symbol, key_buffer):
         horizontal_space()
     
     # if |ts:n| is encountered
-    if re.search(config.key_start_symbol+" *ts *: *[0-9]*"+config.key_end_symbol, key_buffer):
+    if re.search("^"+config.key_start_symbol+" *ts *: *[0-9]*"+config.key_end_symbol, key_buffer):
         tab_space()
     
     # if |color: [R,G,B], TEXT| is encountered
-    if re.search(config.key_start_symbol+" *color *: *\[ *.*,.*,.*\] *,.*"+config.key_end_symbol,key_buffer):
+    if re.search("^"+config.key_start_symbol+" *color *: *\[ *.*,.*,.*\] *,.*"+config.key_end_symbol,key_buffer):
         color(key_buffer)
     
     # if |fontsize: x, TEXT| is encountered
-    if re.search(config.key_start_symbol+" *fontsize *: *.* *,.*"+config.key_end_symbol,key_buffer):
+    if re.search("^"+config.key_start_symbol+" *fontsize *: *.* *,.*"+config.key_end_symbol,key_buffer):
         font_size(key_buffer)
