@@ -33,10 +33,17 @@ def complete_line() -> None:
     
     # get the length of the current line image
     current_line_img_length = config.current_line_img.shape[1]
+    
+    # white pixel to fill in the missing gap
+    white_pixel = cv2.imread("Alphabet/Set 1/wh.png")
+
+    # scale this up in the y - direction
+    scaled_white_pixel = cv2.resize(white_pixel,(1,int(white_pixel.shape[0]*config.scale)) , interpolation= cv2.INTER_LINEAR)[:,0:1]
 
     # add the extra white pixels
     for i in range(config.page_width - current_line_img_length):
-        config.current_line_img = cv2.hconcat([config.current_line_img, cv2.imread("Alphabet/Set 1/wh.png")])
+        config.current_line_img = cv2.hconcat([config.current_line_img, scaled_white_pixel])
+
     
 
 # Function Name: initialise_page
@@ -93,7 +100,7 @@ def write_word() -> None:
     # the current character then move to the next line before concatenating it
     if(config.current_line_img.shape[1] + config.current_word_img.shape[1] > config.page_width):
         write_line()                                                         # write the current line on to the page
-        config.current_line_img = cv2.imread("Alphabet/Set 1/wh.png")        # initialise a new blank line
+        initialise_line()                                                    # initialise a new blank line
 
     # concatenate the current word to the line
     config.current_line_img = cv2.hconcat([config.current_line_img, config.current_word_img])
@@ -108,20 +115,33 @@ def write_character(character:str) -> None:
     if os.path.exists("Alphabet/Set "+str(random.randint(1,3))+"/"+str(ord(character))+".png"):
         # get the individual image of the current character
         config.current_character_img = cv2.imread("Alphabet/Set "+str(random.randint(1,3))+"/"+str(ord(character))+".png")
-        
+
+        # scale the character accordingly
+        config.current_character_img = cv2.resize(config.current_character_img,(int(config.current_character_img.shape[1]*config.scale),int(config.current_character_img.shape[0]*config.scale)) , interpolation= cv2.INTER_LINEAR)
+
         # concatenate the current chatacter to the current line
         config.current_word_img = cv2.hconcat([config.current_word_img, config.current_character_img])
+
 
 
 # Function Name : initialise_line
 # Description : Creates a line starting with white pixels
 def initialise_line() -> None:
     '''initialise_line() -> None\n\nCreates a line starting with white pixels'''
-    config.current_line_img = cv2.imread("Alphabet/Set 1/wh.png")
+    # load the white pixel
+    white_pixel = cv2.imread("Alphabet/Set 1/wh.png")
+    # scale it up in the y - direction
+    scaled_white_pixel = cv2.resize(white_pixel,(1,int(white_pixel.shape[0]*config.scale)) , interpolation= cv2.INTER_LINEAR)
+
+    config.current_line_img = scaled_white_pixel
 
 
 # Function Name : initialise_line
 # Description : Creates a line starting with white pixels
 def initialise_word() -> None:
     '''initialise_line() -> None\n\nCreates a line starting with white pixels'''
-    config.current_word_img = cv2.imread("Alphabet/Set 1/32.png")
+    # load the white pixel
+    white_pixel = cv2.imread("Alphabet/Set 1/32.png")
+    # scale it in the y direction
+    scaled_white_pixel = cv2.resize(white_pixel,(int(white_pixel.shape[1]*config.scale),int(white_pixel.shape[0]*config.scale)) , interpolation= cv2.INTER_LINEAR)
+    config.current_word_img = scaled_white_pixel
