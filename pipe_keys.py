@@ -21,7 +21,7 @@ def new_line() -> None:
 def vertical_space() -> None:
     '''vertical_space() -> None\n\nUsed to give vertical space between two lines'''
     # extract the number of vertical spaces
-    vertical_spaces = int(config.pipe_key_buffer.split(":")[1][:-1])
+    vertical_spaces = int(config.key_buffer.split(":")[1][:-1])
     # skip n lines
     for i in range(vertical_spaces):
         write_line()
@@ -43,7 +43,7 @@ def horizontal_space() -> None:
     '''horizontal_space() -> None\n\nAdds horizontal space n times'''
     
     # extract n from the key
-    horizontal_spaces = int(config.pipe_key_buffer.split(":")[1][:-1])
+    horizontal_spaces = int(config.key_buffer.split(":")[1][:-1])
 
     # concatenate spaces n times
     write_word()           # write the current word to the line
@@ -60,7 +60,7 @@ def tab_space() -> None:
     '''tab_space() -> None\n\nAdds horizontal space n times'''
     
     # extract n from the key
-    tab_spaces = int(config.pipe_key_buffer.split(":")[1][:-1])
+    tab_spaces = int(config.key_buffer.split(":")[1][:-1])
 
     # concatenate spaces n times
     write_word()           # write the current word to the line
@@ -74,12 +74,14 @@ def tab_space() -> None:
 # Function Name : color()
 # Description : Changes the color of the text present
 #   in the key to the given color.
-def color() -> None:
+def color(key_buffer) -> None:
     '''color() -> None\n\nChanges the color of the text present in the key to the given color'''
 
+    is_first_word = True
+
     # extract color and text from the key
-    extracted_text = config.pipe_key_buffer.split(",")[-1][:-1]
-    extracted_color = [int(x) for x in config.pipe_key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
+    extracted_text = config.key_buffer.split(",")[-1][:-1]
+    extracted_color = [int(x) for x in config.key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
 
     # write the current word to the line before colouring the next few characters
     write_word()
@@ -87,27 +89,32 @@ def color() -> None:
     initialise_word()
 
     # concatenate all the extracted text to the blank word
-    for chars in extracted_text:
-        write_character(chars)
-    
-    # remove the default extra space in front of the word
-    config.current_word_img = config.current_word_img[:,27:]
+    for words in extracted_text.split():
+        initialise_word()
+        for chars in words:
+            write_character(chars)
 
-    # color the word
-    config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = extracted_color
+        if is_first_word:    
+            # remove the default extra space in front of the word
+            config.current_word_img = config.current_word_img[:,27:]
+            is_first_word = False
+            
+        # color the word
+        config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = extracted_color
+
+        write_word()
     
-    # write the word
-    write_word()
+    initialise_word()
 
 # Function Name : font_size()
 # Description : Changes the font size of the text
 #   present in the key to the given scale
 # !! Important Note: The font_size funtion changes the size of a single line and crops 
-def font_size() -> None:
+def font_size(key_buffer) -> None:
     '''font_size() -> None\n\nChanges the font size of the text present in the key to the given scale'''
     # get the extracted text from the key
-    extracted_text = config.pipe_key_buffer.split(",")[-1][:-1]
-    extracted_scale = float(config.pipe_key_buffer.split(",")[0].split(":")[-1])
+    extracted_text = config.key_buffer.split(",")[-1][:-1]
+    extracted_scale = float(config.key_buffer.split(",")[0].split(":")[-1])
 
     # write the existing word to the line and line to the page and start from a new line as the size is different
     write_word()
@@ -142,33 +149,33 @@ def font_size() -> None:
 # Description : This functions checks the pipe key buffer
 #    and performs the operation based on the pipe key 
 #    encountered. This function acts like a switch case.
-def analyse_key() -> None:
+def analyse_key(key_buffer) -> None:
     '''analyse_key() -> None\n\nThis functions checks the pipe key buffer and performs the operation based on the pipe key encountered.'''
 
     # if nl key is encountered, then move to the new line
-    if re.search(config.key_start_symbol+" *nl *"+config.key_end_symbol,config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *nl *"+config.key_end_symbol,config.key_buffer):
         new_line()
     
     # if vs:n key is encountered, then skip n lines
-    if re.search(config.key_start_symbol+" *vs *: *[0-9]*"+config.key_end_symbol,config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *vs *: *[0-9]*"+config.key_end_symbol,config.key_buffer):
         vertical_space()
 
     # if |np| is encountered, then start with a new page
-    if re.search(config.key_start_symbol+" *np *"+config.key_end_symbol,config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *np *"+config.key_end_symbol,config.key_buffer):
         new_page()
     
     # if |hs:n| is encountered
-    if re.search(config.key_start_symbol+" *hs *: *[0-9]*"+config.key_end_symbol, config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *hs *: *[0-9]*"+config.key_end_symbol, config.key_buffer):
         horizontal_space()
     
     # if |ts:n| is encountered
-    if re.search(config.key_start_symbol+" *ts *: *[0-9]*"+config.key_end_symbol, config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *ts *: *[0-9]*"+config.key_end_symbol, config.key_buffer):
         tab_space()
     
     # if |color: [R,G,B], TEXT| is encountered
-    if re.search(config.key_start_symbol+" *color *: *\[ *.*,.*,.*\] *,.*"+config.key_end_symbol,config.pipe_key_buffer):
-        color()
+    if re.search(config.key_start_symbol+" *color *: *\[ *.*,.*,.*\] *,.*"+config.key_end_symbol,config.key_buffer):
+        color(key_buffer)
     
     # if |fontsize: x, TEXT| is encountered
-    if re.search(config.key_start_symbol+" *fontsize *: *.* *,.*"+config.key_end_symbol,config.pipe_key_buffer):
-        font_size()
+    if re.search(config.key_start_symbol+" *fontsize *: *.* *,.*"+config.key_end_symbol,config.key_buffer):
+        font_size(key_buffer)
