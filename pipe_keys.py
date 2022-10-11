@@ -77,11 +77,15 @@ def tab_space() -> None:
 def color(key_buffer) -> None:
     '''color() -> None\n\nChanges the color of the text present in the key to the given color'''
 
+    # local variable limited to this function
     is_first_word = True
+    current_key_symbols_encountered_local = 0
+    local_key_buffer = ""
 
     # extract color and text from the key
-    extracted_text = config.key_buffer.split(",")[-1][:-1]
-    extracted_color = [int(x) for x in config.key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
+    extracted_text = key_buffer.split(",")[-1][:-1]
+
+    extracted_color = [int(x) for x in key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
 
     # write the current word to the line before colouring the next few characters
     write_word()
@@ -92,17 +96,37 @@ def color(key_buffer) -> None:
     for words in extracted_text.split():
         initialise_word()
         for chars in words:
-            write_character(chars)
+            # if a start/end symbol is encountered, then key has started or closed
+            if chars == config.key_start_symbol:
+                current_key_symbols_encountered_local += 1
+            elif chars == config.key_end_symbol:
+                current_key_symbols_encountered_local -= 1
+
+            # if a key is being encountered then don't write it on paper,
+            # instead, put it in the pipe key buffer for further analysis
+            if current_key_symbols_encountered_local > 0 or chars == ">":
+                local_key_buffer += chars
+            else:
+                write_character(chars)                      # write the character 
+
+            # if the last pipe is encountered then the key has ended
+            if current_key_symbols_encountered_local == 0 and local_key_buffer !="":
+                analyse_key(local_key_buffer)
+                current_key_symbols_encountered_local = 0          # reset the pipe counter
+                local_key_buffer = ""                              # reset the pipe key buffer
 
         if is_first_word:    
             # remove the default extra space in front of the word
             config.current_word_img = config.current_word_img[:,27:]
             is_first_word = False
-            
+
         # color the word
         config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = extracted_color
 
-        write_word()
+        if current_key_symbols_encountered_local > 0 or chars == ">":
+            local_key_buffer += " "
+        else:
+            write_word()
     
     initialise_word()
 
@@ -153,29 +177,29 @@ def analyse_key(key_buffer) -> None:
     '''analyse_key() -> None\n\nThis functions checks the pipe key buffer and performs the operation based on the pipe key encountered.'''
 
     # if nl key is encountered, then move to the new line
-    if re.search(config.key_start_symbol+" *nl *"+config.key_end_symbol,config.key_buffer):
+    if re.search(config.key_start_symbol+" *nl *"+config.key_end_symbol,key_buffer):
         new_line()
     
     # if vs:n key is encountered, then skip n lines
-    if re.search(config.key_start_symbol+" *vs *: *[0-9]*"+config.key_end_symbol,config.key_buffer):
+    if re.search(config.key_start_symbol+" *vs *: *[0-9]*"+config.key_end_symbol,key_buffer):
         vertical_space()
 
     # if |np| is encountered, then start with a new page
-    if re.search(config.key_start_symbol+" *np *"+config.key_end_symbol,config.key_buffer):
+    if re.search(config.key_start_symbol+" *np *"+config.key_end_symbol,key_buffer):
         new_page()
     
     # if |hs:n| is encountered
-    if re.search(config.key_start_symbol+" *hs *: *[0-9]*"+config.key_end_symbol, config.key_buffer):
+    if re.search(config.key_start_symbol+" *hs *: *[0-9]*"+config.key_end_symbol, key_buffer):
         horizontal_space()
     
     # if |ts:n| is encountered
-    if re.search(config.key_start_symbol+" *ts *: *[0-9]*"+config.key_end_symbol, config.key_buffer):
+    if re.search(config.key_start_symbol+" *ts *: *[0-9]*"+config.key_end_symbol, key_buffer):
         tab_space()
     
     # if |color: [R,G,B], TEXT| is encountered
-    if re.search(config.key_start_symbol+" *color *: *\[ *.*,.*,.*\] *,.*"+config.key_end_symbol,config.key_buffer):
+    if re.search(config.key_start_symbol+" *color *: *\[ *.*,.*,.*\] *,.*"+config.key_end_symbol,key_buffer):
         color(key_buffer)
     
     # if |fontsize: x, TEXT| is encountered
-    if re.search(config.key_start_symbol+" *fontsize *: *.* *,.*"+config.key_end_symbol,config.key_buffer):
+    if re.search(config.key_start_symbol+" *fontsize *: *.* *,.*"+config.key_end_symbol,key_buffer):
         font_size(key_buffer)
