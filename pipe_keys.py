@@ -136,9 +136,14 @@ def color(key_buffer) -> None:
 # !! Important Note: The font_size funtion changes the size of a single line and crops 
 def font_size(key_buffer) -> None:
     '''font_size() -> None\n\nChanges the font size of the text present in the key to the given scale'''
+
+    # local variables limited only to this function
+    current_key_symbols_encountered_local = 0
+    local_key_buffer = ""
+
     # get the extracted text from the key
-    extracted_text = config.key_buffer.split(",")[-1][:-1]
-    extracted_scale = float(config.key_buffer.split(",")[0].split(":")[-1])
+    extracted_text = key_buffer.split(",")[-1][:-1]
+    extracted_scale = float(key_buffer.split(",")[0].split(":")[-1])
 
     # write the existing word to the line and line to the page and start from a new line as the size is different
     write_word()
@@ -154,8 +159,28 @@ def font_size(key_buffer) -> None:
     for words in extracted_text.split():
         initialise_word()           # start a new word  
         for chars in words:         # for every character in the word
-            write_character(chars)  # write the character to the word
-        write_word()                # write the word to the line
+            # if a start/end symbol is encountered, then key has started or closed
+            if chars == config.key_start_symbol:
+                current_key_symbols_encountered_local += 1
+            elif chars == config.key_end_symbol:
+                current_key_symbols_encountered_local -= 1
+
+            # if a key is being encountered then don't write it on paper,
+            # instead, put it in the pipe key buffer for further analysis
+            if current_key_symbols_encountered_local > 0 or chars == ">":
+                local_key_buffer += chars
+            else:
+                write_character(chars)                      # write the character 
+
+            # if the last pipe is encountered then the key has ended
+            if current_key_symbols_encountered_local == 0 and local_key_buffer !="":
+                analyse_key(local_key_buffer)
+                current_key_symbols_encountered_local = 0          # reset the pipe counter
+                local_key_buffer = ""                              # reset the pipe key buffer
+        if current_key_symbols_encountered_local > 0 or chars == ">":
+            local_key_buffer += " "
+        else:
+            write_word()
 
     write_line()           # write the line
     complete_line()        # complete the line
