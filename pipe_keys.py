@@ -95,7 +95,9 @@ def color() -> None:
 
     # color the word
     config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = extracted_color
-
+    
+    # write the word
+    write_word()
 
 # Function Name : font_size()
 # Description : Changes the font size of the text

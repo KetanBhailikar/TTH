@@ -26,7 +26,7 @@ def main():
                 initialise_word()
 
             # loop for each character in a word
-            for n,character in enumerate(word):
+            for character in word:
 
                 # if a start/end symbol is encountered, then key has started or closed
                 if character == config.key_start_symbol:
