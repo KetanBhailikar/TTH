@@ -108,27 +108,27 @@ def font_size() -> None:
     extracted_scale = float(config.pipe_key_buffer.split(",")[0].split(":")[-1])
 
     # write the existing word to the line and line to the page and start from a new line as the size is different
-    new_line()
-
-    # write the extracted text to th line
-    for chars in extracted_text:
-        write_character(chars)
-
-    # write the word to the new line
     write_word()
-    initialise_word()
-
-    config.scale = extracted_scale
-    # complete the line
-    complete_line()
-
-    # change the scale of this line
-    config.current_line_img = cv2.resize(config.current_line_img,(int(config.current_line_img.shape[1]*extracted_scale),int(config.current_line_img.shape[0]*extracted_scale)) , interpolation= cv2.INTER_LINEAR)[:,int(27*extracted_scale-27):config.page_width+int(27*extracted_scale-27)]
-    
-    # write this scaled line to the page
     write_line()
-    config.scale = 1
+
+    # apply the scale
+    config.scale = extracted_scale
+
+    # start in a new line
     initialise_line()
+
+    # for every word in the extracted text
+    for words in extracted_text.split():
+        initialise_word()           # start a new word  
+        for chars in words:         # for every character in the word
+            write_character(chars)  # write the character to the word
+        write_word()                # write the word to the line
+
+    write_line()           # write the line
+    complete_line()        # complete the line
+    config.scale = 1       # reset the scale
+    initialise_word()      # initialise the word
+    initialise_line()      # initialise a new line
     
 
 # Function Name : font
