@@ -143,30 +143,30 @@ def font_size() -> None:
 def analyse_key() -> None:
     '''analyse_key() -> None\n\nThis functions checks the pipe key buffer and performs the operation based on the pipe key encountered.'''
 
-    # if |nl| is encountered, then move to the new line
-    if re.search("\| *nl *\|",config.pipe_key_buffer):
+    # if nl key is encountered, then move to the new line
+    if re.search(config.key_start_symbol+" *nl *"+config.key_end_symbol,config.pipe_key_buffer):
         new_line()
     
-    # if |vs:n| is encountered, then skip n lines
-    if re.search("\| *vs *: *[0-9]*\|",config.pipe_key_buffer):
+    # if vs:n key is encountered, then skip n lines
+    if re.search(config.key_start_symbol+" *vs *: *[0-9]*"+config.key_end_symbol,config.pipe_key_buffer):
         vertical_space()
 
     # if |np| is encountered, then start with a new page
-    if re.search("\| *np *\|",config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *np *"+config.key_end_symbol,config.pipe_key_buffer):
         new_page()
     
     # if |hs:n| is encountered
-    if re.search("\| *hs *: *[0-9]*\|", config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *hs *: *[0-9]*"+config.key_end_symbol, config.pipe_key_buffer):
         horizontal_space()
     
     # if |ts:n| is encountered
-    if re.search("\| *ts *: *[0-9]*\|", config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *ts *: *[0-9]*"+config.key_end_symbol, config.pipe_key_buffer):
         tab_space()
     
     # if |color: [R,G,B], TEXT| is encountered
-    if re.search("\| *color *: *\[ *.*,.*,.*\] *,.*\|",config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *color *: *\[ *.*,.*,.*\] *,.*"+config.key_end_symbol,config.pipe_key_buffer):
         color()
     
     # if |fontsize: x, TEXT| is encountered
-    if re.search("\| *fontsize *: *.* *,.*\|",config.pipe_key_buffer):
+    if re.search(config.key_start_symbol+" *fontsize *: *.* *,.*"+config.key_end_symbol,config.pipe_key_buffer):
         font_size()

@@ -22,32 +22,34 @@ def main():
         # for all the words in a line
         for word in line.split():
             # initialise a blank word starting with a space if the key is not being read
-            if config.current_key_pipes_encountered == 0:
+            if config.current_key_symbols_encountered == 0:
                 initialise_word()
 
             # loop for each character in a word
             for n,character in enumerate(word):
 
-                # if a pipe is encountered, then key has started or closed
-                if character == "|":
-                    config.current_key_pipes_encountered += 1
+                # if a start/end symbol is encountered, then key has started or closed
+                if character == config.key_start_symbol:
+                    config.current_key_symbols_encountered = 1
+                elif character == config.key_end_symbol:
+                    config.current_key_symbols_encountered = 2
 
                 # if a key is being encountered then don't write it on paper,
                 # instead, put it in the pip key buffer for further analysis
-                if config.current_key_pipes_encountered > 0 and config.current_key_pipes_encountered < 3:
+                if config.current_key_symbols_encountered > 0 and config.current_key_symbols_encountered < 3:
                     config.pipe_key_buffer += character
                 else:
                     write_character(character)                      # write the character 
 
                 # if the last pipe is encountered then the key has ended
-                if config.current_key_pipes_encountered == 2:
+                if config.current_key_symbols_encountered == 2:
                     analyse_key()
-                    config.current_key_pipes_encountered = 0          # reset the pipe counter
+                    config.current_key_symbols_encountered = 0          # reset the pipe counter
                     config.pipe_key_buffer = ""         # reset the pipe key buffer
 
             # if the key has multiple words in its text, then don't write those words to the line, instead,
             # add a space between the words in the pipe key buffer
-            if config.current_key_pipes_encountered > 0 and config.current_key_pipes_encountered < 3:
+            if config.current_key_symbols_encountered > 0 and config.current_key_symbols_encountered < 3:
                     config.pipe_key_buffer += " "
             else:
                 write_word()
