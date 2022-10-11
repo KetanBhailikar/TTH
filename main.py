@@ -37,20 +37,20 @@ def main():
                 # if a key is being encountered then don't write it on paper,
                 # instead, put it in the pipe key buffer for further analysis
                 if config.current_key_symbols_encountered > 0 or character == ">":
-                    config.pipe_key_buffer += character
+                    config.key_buffer += character
                 else:
                     write_character(character)                      # write the character 
 
                 # if the last pipe is encountered then the key has ended
-                if config.current_key_symbols_encountered == 0 and config.pipe_key_buffer !="":
-                    analyse_key()
+                if config.current_key_symbols_encountered == 0 and config.key_buffer !="":
+                    analyse_key(config.key_buffer)
                     config.current_key_symbols_encountered = 0          # reset the pipe counter
-                    config.pipe_key_buffer = ""         # reset the pipe key buffer
+                    config.key_buffer = ""         # reset the pipe key buffer
 
             # if the key has multiple words in its text, then don't write those words to the line, instead,
             # add a space between the words in the pipe key buffer
             if config.current_key_symbols_encountered > 0 or character == ">":
-                    config.pipe_key_buffer += " "
+                    config.key_buffer += " "
             else:
                 write_word()
         
