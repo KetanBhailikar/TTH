@@ -3,6 +3,7 @@ from page_formatter import  complete_line, initialise_line, initialise_word, wri
 import re
 import numpy as np
 
+color = None
 
 # Function Name: new_line()
 # Description : Writes the current line to the page
@@ -76,6 +77,8 @@ def tab_space() -> None:
 def color(key_buffer) -> None:
     '''color() -> None\n\nChanges the color of the text present in the key to the given color'''
 
+    global color
+
     # local variable limited to this function
     is_first_word = True
     current_key_symbols_encountered_local = 0
@@ -86,6 +89,7 @@ def color(key_buffer) -> None:
 
     # print(key_buffer)
     extracted_color = [int(x) for x in key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
+    color = extracted_color
 
     # write the current word to the line before colouring the next few characters
     write_word()
@@ -177,6 +181,10 @@ def font_size(key_buffer) -> None:
                 analyse_key(local_key_buffer)
                 current_key_symbols_encountered_local = 0          # reset the pipe counter
                 local_key_buffer = ""                              # reset the pipe key buffer
+
+        # color the word
+        config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = color
+
         if current_key_symbols_encountered_local > 0 or chars == ">":
             local_key_buffer += " "
         else:
