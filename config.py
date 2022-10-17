@@ -10,7 +10,7 @@ current_page_number = 1             # holds the current page number
 scale = 1                           # the functions import an image and scale it according to this value
 key_start_symbol = "<"              # customizable key start symbol
 key_end_symbol = ">"                # customizable key end symbol
-
+line_word_end_data = []
 
 # Image variables set to None ( Initially )
 current_character_img = None        # holds the image of the current character

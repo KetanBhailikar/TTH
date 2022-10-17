@@ -134,6 +134,7 @@ def color(key_buffer) -> None:
             write_word()
     
     initialise_word()
+    color_var = None
 
 # Function Name : font_size()
 # Description : Changes the font size of the text

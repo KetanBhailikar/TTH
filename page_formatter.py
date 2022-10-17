@@ -41,10 +41,21 @@ def complete_line() -> None:
     scaled_white_pixel = cv2.resize(white_pixel,(1,int(white_pixel.shape[0]*config.scale)) , interpolation= cv2.INTER_LINEAR)[:,0:1]
 
     # add the extra white pixels
-    for i in range(config.page_width - current_line_img_length):
-        config.current_line_img = cv2.hconcat([config.current_line_img, scaled_white_pixel])
+    if config.current_line_img.shape[1] < config.page_width*0.75:
+        for i in range(config.page_width - current_line_img_length):
+            config.current_line_img = cv2.hconcat([config.current_line_img, scaled_white_pixel])
 
-    
+    # add equal number of blank spaces between the words so they look justified
+    word_pointer = 0
+    while config.current_line_img.shape[1] != config.page_width:
+        temp = cv2.hconcat([config.current_line_img[:,:config.line_word_end_data[word_pointer]],scaled_white_pixel])
+        temp2 = config.current_line_img[:,config.line_word_end_data[word_pointer]:]
+        for j in range(word_pointer,len(config.line_word_end_data)):
+            config.line_word_end_data[j] += 1
+        config.current_line_img = cv2.hconcat([temp,temp2])
+        word_pointer += 1
+        if word_pointer == len(config.line_word_end_data) - 1:
+            word_pointer = 0
 
 # Function Name: initialise_page
 # Description : Initialises a blank line in the beginning of the page
@@ -104,7 +115,7 @@ def write_word() -> None:
 
     # concatenate the current word to the line
     config.current_line_img = cv2.hconcat([config.current_line_img, config.current_word_img])
-
+    config.line_word_end_data.append(config.current_line_img.shape[1])
 
 # Function Name: write_character
 # Description : Concatenates the current character image to the current word image
@@ -134,7 +145,7 @@ def initialise_line() -> None:
     scaled_white_pixel = cv2.resize(white_pixel,(1,int(white_pixel.shape[0]*config.scale)) , interpolation= cv2.INTER_LINEAR)
 
     config.current_line_img = scaled_white_pixel
-
+    config.line_word_end_data = []
 
 # Function Name : initialise_line
 # Description : Creates a line starting with white pixels
