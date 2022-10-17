@@ -1,4 +1,4 @@
-import cv2
+from fpdf import FPDF
 from page_formatter import initialise_line, initialise_word, initialise_page, write_character, write_line, write_page, write_word
 import config
 from pipe_keys import analyse_key
@@ -59,5 +59,11 @@ def main():
     # write the final page in the OP folder
     write_page()
 
+    # convert the images to pdf
+    pdf = FPDF()
+    for i in range(1,config.current_page_number):
+        pdf.add_page()
+        pdf.image("OP/"+str(i)+".png",0,0,210,297)
+    pdf.output("Assignment.pdf", "F")    
 
 main()
