@@ -41,7 +41,7 @@ def complete_line() -> None:
     scaled_white_pixel = cv2.resize(white_pixel,(1,int(white_pixel.shape[0]*config.scale)) , interpolation= cv2.INTER_LINEAR)[:,0:1]
 
     # add the extra white pixels
-    if config.current_line_img.shape[1] < config.page_width*0.75:
+    if config.current_line_img.shape[1] < config.page_width*config.min_justify_limit:
         for i in range(config.page_width - current_line_img_length):
             config.current_line_img = cv2.hconcat([config.current_line_img, scaled_white_pixel])
 
