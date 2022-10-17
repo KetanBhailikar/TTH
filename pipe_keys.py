@@ -3,13 +3,14 @@ from page_formatter import  complete_line, initialise_line, initialise_word, wri
 import re
 import numpy as np
 
-color = None
+color_var = None
 
 # Function Name: new_line()
 # Description : Writes the current line to the page
 #   and initialises a new blank line
 def new_line() -> None:
     '''new_line() -> None\n\nWrites the current line to the page and initialises a new blank line'''
+    if color_var != None: config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = color_var
     write_word()        # write the current word before moving to the next line
     initialise_word()   # create a new blank word
     write_line()        # write the current line to the paper
@@ -77,7 +78,7 @@ def tab_space() -> None:
 def color(key_buffer) -> None:
     '''color() -> None\n\nChanges the color of the text present in the key to the given color'''
 
-    global color
+    global color_var
 
     # local variable limited to this function
     is_first_word = True
@@ -89,7 +90,7 @@ def color(key_buffer) -> None:
 
     # print(key_buffer)
     extracted_color = [int(x) for x in key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
-    color = extracted_color
+    color_var = extracted_color
 
     # write the current word to the line before colouring the next few characters
     write_word()
@@ -125,7 +126,7 @@ def color(key_buffer) -> None:
             is_first_word = False
 
         # color the word
-        config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = extracted_color
+        config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = color_var
 
         if current_key_symbols_encountered_local > 0 or chars == ">":
             local_key_buffer += " "
@@ -183,7 +184,8 @@ def font_size(key_buffer) -> None:
                 local_key_buffer = ""                              # reset the pipe key buffer
 
         # color the word
-        config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = color
+        if color_var != None:
+            config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = color_var
 
         if current_key_symbols_encountered_local > 0 or chars == ">":
             local_key_buffer += " "
