@@ -24,6 +24,7 @@ import cv2
 import os
 import config
 import random
+import numpy as np
 
 # Function Name: complete_line
 # Description : Concatenates white pixels to the current
@@ -96,6 +97,26 @@ def write_page() -> None:
         # repeatedly write this blank line to the page until it is full
         while config.current_page_img.shape[0] < config.page_height:
             write_line()
+    
+    # add left margin
+    margin = np.zeros([config.current_page_img.shape[0],config.left_margin,3],dtype=np.uint8)
+    margin.fill(255)
+    config.current_page_img = cv2.hconcat([margin,config.current_page_img])
+
+    # add right margin
+    margin = np.zeros([config.current_page_img.shape[0],config.right_margin,3],dtype=np.uint8)
+    margin.fill(255)
+    config.current_page_img = cv2.hconcat([config.current_page_img,margin])
+
+    # add top margin
+    margin = np.zeros([config.top_margin,config.current_page_img.shape[1],3],dtype=np.uint8)
+    margin.fill(255)
+    config.current_page_img = cv2.vconcat([margin,config.current_page_img])
+
+    # bottom margin
+    margin = np.zeros([config.bottom_margin,config.current_page_img.shape[1],3],dtype=np.uint8)
+    margin.fill(255)
+    config.current_page_img = cv2.vconcat([config.current_page_img,margin])
 
     cv2.imwrite("OP/" +str(config.current_page_number) +".png",config.current_page_img)   # save the current page image
     print("Completed Writing Page",config.current_page_number)                            # print the prompt

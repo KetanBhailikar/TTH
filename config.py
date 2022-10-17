@@ -26,5 +26,5 @@ current_line_img = None             # holds the image of the current line
 current_page_img = None             # holds the image of the current page
 
 # Final Calculations
-# page_width = page_width - (left_margin + right_margin)
-# page_height = page_height - (top_margin + bottom_margin)
+page_width = page_width - (left_margin + right_margin)
+page_height = page_height - (top_margin + bottom_margin)
