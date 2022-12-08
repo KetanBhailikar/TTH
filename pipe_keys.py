@@ -88,7 +88,7 @@ def color(key_buffer) -> None:
     # extract color and text from the key
     extracted_text = key_buffer[key_buffer.find("]"):][key_buffer[key_buffer.find("]"):].find(",")+1:][:-1]
 
-    # print(key_buffer)
+
     extracted_color = [int(x) for x in key_buffer.split(":")[1].split("]")[0].strip()[1:].split(",")][::-1]
     color_var = extracted_color
 
@@ -128,13 +128,70 @@ def color(key_buffer) -> None:
         # color the word
         config.current_word_img[np.where((config.current_word_img<=[200, 200, 200]).all(axis=2))] = color_var
 
-        if current_key_symbols_encountered_local > 0 or chars == ">":
+        if current_key_symbols_encountered_local > 0 or chars == config.key_end_symbol:
             local_key_buffer += " "
         else:
             write_word()
     
     initialise_word()
     color_var = None
+
+# Function Name : duplicate()
+# Description : Changes the color of the text present
+#   in the key to the given color.
+def duplicate(key_buffer) -> None:
+    '''duplicate() -> None\n\nWrites a given text n number of times'''
+
+    is_first_word = True
+    current_key_symbols_encountered_local = 0
+    local_key_buffer = ""
+
+    # extract text from the key
+    extracted_text = key_buffer[key_buffer.find(",")+1:-1]
+
+    # extract n from the key
+    n = int(key_buffer[key_buffer.find(":")+1:key_buffer.find(",")])
+
+    # write the current word to the line before duplicating the next few characters
+    write_word()
+    # create a new blank word
+    initialise_word()
+
+    for repeat in range(n):
+        # concatenate all the extracted text to the blank word
+        for words in extracted_text.split():
+            initialise_word()
+            for chars in words:
+                # if a start/end symbol is encountered, then key has started or closed
+                if chars == config.key_start_symbol:
+                    current_key_symbols_encountered_local += 1
+                elif chars == config.key_end_symbol:
+                    current_key_symbols_encountered_local -= 1
+
+                # if a key is being encountered then don't write it on paper,
+                # instead, put it in the pipe key buffer for further analysis
+                if current_key_symbols_encountered_local > 0 or chars == ">":
+                    local_key_buffer += chars
+                else:
+                    write_character(chars)                      # write the character 
+
+                # if the last pipe is encountered then the key has ended
+                if current_key_symbols_encountered_local == 0 and local_key_buffer !="":
+                    analyse_key(local_key_buffer)
+                    current_key_symbols_encountered_local = 0          # reset the pipe counter
+                    local_key_buffer = ""                              # reset the pipe key buffer
+
+            if is_first_word:    
+                # remove the default extra space in front of the word
+                config.current_word_img = config.current_word_img[:,27:]
+                is_first_word = False
+
+            if current_key_symbols_encountered_local > 0 or chars == config.key_end_symbol:
+                local_key_buffer += " "
+            else:
+                write_word()
+    
+    initialise_word()
 
 # Function Name : font_size()
 # Description : Changes the font size of the text
@@ -239,3 +296,7 @@ def analyse_key(key_buffer) -> None:
     # if |fontsize: x, TEXT| is encountered
     if re.search("^"+config.key_start_symbol+" *fontsize *: *.* *,.*"+config.key_end_symbol,key_buffer):
         font_size(key_buffer)
+    
+    # if |dup: x, TEXT| is encountered
+    if re.search("^"+config.key_start_symbol+" *dup *: *.* *,.*"+config.key_end_symbol,key_buffer):
+        duplicate(key_buffer)

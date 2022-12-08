@@ -54,7 +54,7 @@ def main():
             else:
                 write_word()
         
-        write_line()                                                # write the current line to the page
+    write_line()                                                # write the current line to the page
 
     # write the final page in the OP folder
     write_page()
